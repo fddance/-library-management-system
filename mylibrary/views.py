@@ -2,10 +2,15 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
 from django.db.models import Q
+
+from mylibrary.book_recommendation import recommender
 from mylibrary.models import User, Book, Borrow, Log, BorrowReview
 from mylibrary.forms import LoginForm, RegisterForm, SearchForm, BookForm
 from datetime import datetime, timedelta
 import hashlib
+
+
+# import book_recommendation
 
 
 class IndexView(View):
@@ -134,7 +139,26 @@ class SearchView(View):
             if not books:
                 message = '未查询到相关书籍！'
         else:
-            books = Book.objects.all()
+            if BorrowReview.objects.filter(user_id=request.session['user_id'], star__gte=0).count() > 0:
+                # try:
+                user_book_stars = {}
+                borrow_review_list = BorrowReview.objects.all()
+                for borrow_review in borrow_review_list:
+                    if borrow_review.user_id not in user_book_stars:
+                        user_book_stars[borrow_review.user_id] = {}
+                    user_book_stars[borrow_review.user_id][borrow_review.book_id] = int(borrow_review.star)
+                r = recommender(user_book_stars)
+                k = r.recommend(request.session['user_id'])
+                recommend_book_id_list = [0] * len(k)
+                for i in range(len(k)):
+                    recommend_book_id_list[i] = k[i][0]
+                print(recommend_book_id_list)
+                books = Book.objects.filter(id__in=recommend_book_id_list, is_available=True)
+                # except Exception as r:
+                # print(r)
+                # books = Book.objects.all()
+            else:
+                books = Book.objects.all()
         return render(request, "search.html", locals())
 
 
@@ -359,7 +383,8 @@ class UserSearchView(View):
         if search_form.is_valid():
             keyword = search_form.cleaned_data['keyword']
             users = User.objects.filter(
-                Q(name__icontains=keyword) | Q(id__icontains=keyword) | Q(major__icontains=keyword) | Q(research_direction__icontains=keyword))
+                Q(name__icontains=keyword) | Q(id__icontains=keyword) | Q(major__icontains=keyword) | Q(
+                    research_direction__icontains=keyword))
             if not users:
                 message = '未查询到相关用户！'
         else:
