@@ -77,10 +77,10 @@ WSGI_APPLICATION = 'library.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'library',
-        'USER': 'root',
-        'PASSWORD': 'dyh9907010330',
-        'HOST': '127.0.0.1',
+        'NAME': 'book_library',
+        'USER': 'fddance',
+        'PASSWORD': '45678901',
+        'HOST': 'fddance.cn',
         'PORT': '3306',
     }
 }

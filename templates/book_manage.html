@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}个人中心{% endblock %}
+
+{% block content %}
+    <div class="col-sm-3 col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+{#            <li class="active"><a href="/home_admin/">个人中心</a></li>#}
+            <li><a href="/book_manage/">图书信息管理</a></li>
+            <li><a href="/user_manage/">读者信息管理</a></li>
+        </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="row placeholders">
+            <form class="form-search" action="/book_search/" method="get">
+                <div class="form-group">
+                    {{ search_form.keyword }}
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">查询</button>
+            </form>
+        </div>
+        <button onclick="window.location.href = '/book_add/'" class="btn btn-primary btn-block">新增书籍</button>
+        <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">书名</th>
+                  <th scope="col">作者</th>
+                  <th scope="col">出版社</th>
+                  <th scope="col">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for book in books %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ book.name }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.publisher }}</td>
+                        <td><a class="btn btn-success btn-sm" href="/book_delete/?book_id={{ book.id }}">删除</a></td>
+                    </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        {% if message %}
+          <div class="alert alert-warning">{{ message }}</div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -4,23 +4,17 @@
 {% block css %}
     <link href="{% static 'css/search.css' %}" rel="stylesheet"/>{% endblock %}
 
+
 {% block content %}
     <div class="col-sm-3 col-md-2 sidebar" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
         <ul class="nav nav-sidebar">
             <li><a href="/home/">个人中心</a></li>
-            <li class="active"><a href="/search/">借书</a></li>
-            <li><a href="/star/">评分</a></li>
+            <li><a href="/search/">借书</a></li>
+            <li class="active"><a href="/star/">评分</a></li>
         </ul>
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-        <div class="row placeholders">
-            <form class="form-search" action="/search/" method="get">
-                <div class="form-group">
-                    {{ search_form.keyword }}
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">查询</button>
-            </form>
-        </div>
+        <h2 class="page-header">正在借阅</h2>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -29,28 +23,32 @@
                     <th scope="col">书名</th>
                     <th scope="col">作者</th>
                     <th scope="col">出版社</th>
-                    <th scope="col">操作</th>
+                    <th scope="col">评分</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for book in books %}
+                {% for entry in borrow_entries %}
                     <tr>
                         <th scope="row">{{ forloop.counter }}</th>
-                        <td>{{ book.name }}</td>
-                        <td>{{ book.author }}</td>
-                        <td>{{ book.publisher }}</td>
-                        {% if book.is_available %}
-                            <td><a class="btn btn-success btn-sm" href="/borrow/?book_id={{ book.id }}">借书</a></td>
-                        {% else %}
-                            <td>已借出</td>
-                        {% endif %}
+                        <td>{{ entry.book.name }}</td>
+                        <td>{{ entry.book.author }}</td>
+                        <td>{{ entry.book.publisher }}</td>
+                        <form class='form-register' action="/book_star/" method="get">
+                            <td><input name=star value="{{ entry.star }}" max="5" min="1"></td>
+                            <td style="display: none"><input name=id value="{{ entry.id }}"></td>
+                            <td>
+                                <button type="submit" class="btn btn-primary pull-right">提交</button>
+                            </td>
+                        </form>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% if message %}
-            <div class="alert alert-warning">{{ message }}</div>
+        {% if not borrow_entries %}
+            <h5 class="page-header" align="center">您当前没有借书记录</h5>
         {% endif %}
     </div>
+
+
 {% endblock %}
